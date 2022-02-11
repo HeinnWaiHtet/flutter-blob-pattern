@@ -1,4 +1,6 @@
+import 'package:blob_pattern/models/response.dart';
 import 'package:blob_pattern/pages/post/post_bloc.dart';
+import 'package:blob_pattern/utils/app_constants.dart';
 import 'package:flutter/material.dart';
 
 class PostPage extends StatefulWidget {
@@ -38,24 +40,51 @@ class _PostPageState extends State<PostPage> {
       appBar: AppBar(
         title: Text("Bloc Post"),
       ),
-      body: StreamBuilder<List<Map<String, dynamic>>>(
-        initialData: [],
+      body: StreamBuilder<Response>(
+        initialData: Response(
+          dataState: AppDataState.loading,
+          data: null
+        ),
         stream: postBloc.postStream(),
         builder: (context, snapshot) {
-          return ListView.builder(
-            itemCount: snapshot.data!.length,
-            itemBuilder: (BuildContext context, int index){
-              return Card(
-                child: Column(
-                  children: [
-                    Text("User ID : ${snapshot.data![index]['userId'].toString()}"),
-                    Text("Id ${snapshot.data![index]['id'].toString()}"),
-                    Text("Title ${snapshot.data![index]['title'].toString()}"),
-                    Text("Body ${snapshot.data![index]['body'].toString()}"),
-                  ]
-                ),
-              );
-            }
+          Response response = Response(
+            dataState: snapshot.data!.dataState,
+            data: snapshot.data!.data
+          );
+
+          if(response.dataState == AppDataState.loading){
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          }else if(response.dataState == AppDataState.data){
+              return ListView.builder(
+              itemCount: response.data!.length,
+              itemBuilder: (BuildContext context, int index){
+                return Card(
+                  child: Column(
+                    children: [
+                      Text("User ID : ${response.data![index]['userId'].toString()}"),
+                      Text("Id ${response.data![index]['id'].toString()}"),
+                      Text("Title ${response.data![index]['title'].toString()}"),
+                      Text("Body ${response.data![index]['body'].toString()}"),
+                    ]
+                  ),
+                );
+              }
+            );
+          }else if(response.dataState == AppDataState.error){
+            return Center(
+              child: TextButton(
+                child: Text("Try Again"),
+                onPressed: (){
+                  postBloc.getData();
+                },
+              ),
+            );
+          }
+          
+          return Center(
+            child: Text("Error"),
           );
         }
       ),
