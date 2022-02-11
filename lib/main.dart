@@ -1,4 +1,4 @@
-import 'package:blob_pattern/pages/post_page.dart';
+import 'package:blob_pattern/pages/post/post_page.dart';
 import 'package:flutter/material.dart';
 
 void main(){
